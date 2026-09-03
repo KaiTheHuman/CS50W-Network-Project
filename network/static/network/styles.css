@@ -1,0 +1,11 @@
+.time{
+    float:right;
+    color:grey;
+}
+
+.heading{
+    background-color: lightgray;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    padding:25px;
+}

@@ -1,0 +1,82 @@
+{% extends "network/layout.html" %}
+{%load static%}
+
+{% block body %}
+
+    <div {%if userpage%} class="heading"  {%else%} class="heading d-flex justify-content-center" {%endif%}>
+{%if userpage %}
+    <h3 class="d-flex justify-content-center">{{userpage.username.title}}</h3>
+    <h5 class="d-flex justify-content-center">Followers:  <strong id="followers_count">{{userpage.followers.count}}</strong></h5>
+    <h5 class="d-flex justify-content-center">Following:  <strong>{{userpage.following.count}}</strong></h5>
+    {%if user.is_authenticated and not user.id == userpage.id%}
+        <button  id="follow_button" {%if userpage in user.following.all %} data-status="true" class="btn btn-sm btn-outline-secondary" {%else%} data-status="false" class="btn btn-sm btn-outline-primary" {%endif%} data-userpage={{userpage.id}} > {%if userpage in user.following.all %} Unfollow {%else%} Follow {%endif%}</button>
+    {%endif%}
+{%elif following%}
+    <h3>Following</h3>
+
+{%else%}
+    <h3>All Posts</h3>
+{%endif%}
+</div>
+<div class="container">
+
+
+    {%for post in posts%}
+        <div class="card post">
+    <div class="card-body">
+    <h5 class="card-title"><a href="{% url 'user' id=post.user.id page_num=1%}">{{post.user.username.title}}</a></h5>
+    <p class="content">{{post.content}}</p>
+        <form class="edit_content" data-post={{post.id}}>
+        {% csrf_token%}
+        <textarea></textarea>
+        <input class=" btn btn-sm btn-outline-primary"  type="submit">
+        </form>
+    <div class="time">{{post.time}}</div>
+    <div>Likes: <span class="likes">{{post.likes_users.count}}</span></div>
+    {%if post.user == user%}
+    <button class=" btn btn-sm btn-outline-primary edit_button">Edit</button>
+    {%endif%}
+    <button  {%if post in user.likes.all %} data-status="true" class="btn btn-sm btn-outline-secondary like_button" {%else%} data-status="false" class="btn btn-sm btn-outline-primary like_button" {%endif%} data-post={{post.id}} > {%if post in user.likes.all %} Unlike {%else%} Like {%endif%}</button>
+                </div>
+    </div>
+    {%empty%}
+        <div class="card post">
+    <div class="card-body">
+        <h5 class="card-title">No posts</h5>
+        </div>
+    </div>
+    {%endfor%}
+
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {%if following%}
+        {%if current_page.has_previous %}
+        <li class="page-item"><a  class="page-link" href="{% url 'following'  page_num=current_page.previous_page_number%}">Previous</a> </li>
+        {%endif%}
+        {%if current_page.has_next%}
+        <li class="page-item"><a class="page-link" href="{% url 'following'  page_num=current_page.next_page_number %}">Next</a> </li>
+        {%endif%}
+    {%elif userpage%}
+        {%if current_page.has_previous %}
+        <li class="page-item"><a class="page-link" href="{% url  'user' id=userpage.id  page_num=current_page.previous_page_number%}">Previous</a> </li>
+        {%endif%}
+        {%if current_page.has_next%}
+        <li class="page-item"><a class="page-link" href="{% url  'user' id=userpage.id  page_num=current_page.next_page_number %}">Next</a> </li>
+        {%endif%}
+    {%else%}
+        {%if current_page.has_previous %}
+        <li class="page-item"><a class="page-link" href="{% url  'index'  page_num=current_page.previous_page_number%}">Previous</a> </li>
+        {%endif%}
+        {%if current_page.has_next%}
+        <li class="page-item"><a class="page-link" href="{% url 'index' page_num=current_page.next_page_number %}">Next</a> </li>
+        {%endif%}
+    {%endif%}
+</ul>
+</nav>
+</div>
+{% endblock %}
+
+{%block script%}
+    <script src="{% static 'network/script.js' %}"></script> 
+{% endblock %}
